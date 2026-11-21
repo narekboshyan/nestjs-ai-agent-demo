@@ -1,27 +1,30 @@
-import { BadRequestException, Body, Controller, Post, Req } from '@nestjs/common';
-import { AiService } from '@nestjs/ai';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Req,
+  UseGuards,
+  UsePipes,
+  ValidationPipe,
+} from '@nestjs/common';
+import { ThrottlerGuard } from '@nestjs/throttler';
+import type { AuthenticatedRequest } from '../auth/authenticated-request.js';
+import { AskDto } from './dto/ask.dto.js';
+import { SupportService, type SupportAnswer } from './support.service.js';
 
+// The pipe and the rate limit are bound here, not globally: global guards and
+// pipes also run on the model's tool calls, where there is no HTTP request to throttle.
 @Controller()
+@UseGuards(ThrottlerGuard)
+@UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
 export class SupportController {
-  constructor(private readonly ai: AiService) {}
+  constructor(private readonly support: SupportService) {}
 
-  /** Step 4: call the agent. The model decides when to call the tools. */
   @Post('ask')
-  async ask(@Body() body: { question?: string }, @Req() request: unknown) {
-    if (typeof body?.question !== 'string' || body.question.length === 0) {
-      throw new BadRequestException('Send JSON like { "question": "Where is order ord_1?" }');
-    }
-    const result = await this.ai.generateText({
-      instructions: 'You are a support assistant for an online store. Use the tools to look up orders.',
-      prompt: body.question,
-      tools: ['find-order', 'refund'],
-      caller: { request },
-    });
-    return {
-      answer: result.text,
-      toolCalls: result.toolCalls,
-      toolResults: result.toolResults,
-      steps: result.steps.length,
-    };
+  @HttpCode(HttpStatus.OK)
+  ask(@Body() body: AskDto, @Req() request: AuthenticatedRequest): Promise<SupportAnswer> {
+    return this.support.ask(body.question, request);
   }
 }

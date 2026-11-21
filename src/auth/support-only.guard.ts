@@ -1,5 +1,6 @@
 import { type CanActivate, type ExecutionContext, Injectable } from '@nestjs/common';
 import { AiExecutionContext, type AiContextType } from '@nestjs/ai';
+import type { AuthenticatedRequest } from './authenticated-request.js';
 
 /** Lets a tool call through only when the model acts for a support user. */
 @Injectable()
@@ -9,6 +10,6 @@ export class SupportOnlyGuard implements CanActivate {
       return true;
     }
     const call = AiExecutionContext.create(context);
-    return call.getRequest()?.user?.role === 'support';
+    return call.getRequest<AuthenticatedRequest>()?.user?.role === 'support';
   }
 }

@@ -10,25 +10,39 @@
     "node": ">=22"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "dev": "tsc -p tsconfig.json && node dist/main.js",
-    "smoke": "tsc -p tsconfig.json && node dist/smoke.js"
+    "dev": "npm run build && node dist/main.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "tsc -p tsconfig.json && node --test \".test-dist/test/**/*.test.js\""
   },
   "dependencies": {
     "@ai-sdk/anthropic": "^4.0.107",
     "@nestjs/ai": "^0.0.2",
     "@nestjs/common": "^12.6.0",
+    "@nestjs/config": "^12.1.1",
     "@nestjs/core": "^12.6.0",
     "@nestjs/platform-express": "^12.6.0",
     "@nestjs/resilience": "^0.0.3",
+    "@nestjs/throttler": "^6.8.0",
     "ai": "^7.0.179",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.2",
     "zod": "^4.6.7"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@nestjs/testing": "^12.6.0",
+    "@types/express": "^5.0.6",
     "@types/node": "^22.20.5",
-    "typescript": "^7.0.2"
+    "eslint": "^9.39.5",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.10.1",
+    "typescript": "~6.0",
+    "typescript-eslint": "^8.73.0"
   }
 }

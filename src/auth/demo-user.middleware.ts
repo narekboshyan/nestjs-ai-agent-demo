@@ -1,4 +1,6 @@
 import { Injectable, type NestMiddleware } from '@nestjs/common';
+import type { NextFunction, Response } from 'express';
+import type { AuthenticatedRequest } from './authenticated-request.js';
 
 /**
  * DEMO ONLY. Stands in for real authentication: it trusts the `x-demo-role`
@@ -7,7 +9,7 @@ import { Injectable, type NestMiddleware } from '@nestjs/common';
  */
 @Injectable()
 export class DemoUserMiddleware implements NestMiddleware {
-  use(request: any, _response: unknown, next: () => void) {
+  use(request: AuthenticatedRequest, _response: Response, next: NextFunction) {
     const role = request.headers['x-demo-role'] === 'support' ? 'support' : 'customer';
     request.user = { id: 'demo-user', role };
     next();
